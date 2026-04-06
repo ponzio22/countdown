@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0e1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff}
+.t{font-size:.85rem;letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:1.5rem}
+.g{display:flex;gap:1.2rem;align-items:flex-start}
+.u{text-align:center}
+.n{font-size:3.5rem;font-weight:200;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff 30%,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.l{margin-top:.4rem;font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.c{font-size:2.5rem;font-weight:100;color:rgba(255,255,255,.12);margin-top:.15em}
+.d{margin-top:1.2rem;font-size:.65rem;color:rgba(255,255,255,.2);letter-spacing:.12em}
+#keep-awake{position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1}
+</style></head>
+<body>
+<div class="t">Countdown</div>
+<div class="g">
+<div class="u"><div class="n" id="d">000</div><div class="l">Days</div></div>
+<div class="c">:</div>
+<div class="u"><div class="n" id="h">00</div><div class="l">Hours</div></div>
+<div class="c">:</div>
+<div class="u"><div class="n" id="m">00</div><div class="l">Minutes</div></div>
+<div class="c">:</div>
+<div class="u"><div class="n" id="s">00</div><div class="l">Seconds</div></div>
+</div>
+<div class="d">December 31, 2026 — Midnight</div>
+
+<!-- Silent video to trick webOS into thinking media is playing -->
+<video id="keep-awake" autoplay loop muted playsinline>
+  <!-- Tiny inline base64-encoded silent MP4 (~300 bytes, 1s duration) -->
+</video>
+
+<script>
+// --- Countdown ---
+const T=new Date('2026-12-31T00:00:00').getTime();
+function p(n,l=2){return String(n).padStart(l,'0')}
+function tick(){let d=Math.max(0,T-Date.now());
+document.getElementById('d').textContent=p(Math.floor(d/864e5),3);
+document.getElementById('h').textContent=p(Math.floor(d%864e5/36e5));
+document.getElementById('m').textContent=p(Math.floor(d%36e5/6e4));
+document.getElementById('s').textContent=p(Math.floor(d%6e4/1e3))}
+tick();setInterval(tick,1000);
+
+// --- Keep TV Awake ---
+
+// Method 1: Silent video loop (most reliable on webOS)
+// Generates a minimal silent MP4 in-memory and loops it
+(function initSilentVideo(){
+  // Minimal valid MP4 with 1s of silence (base64)
+  const silentMP4 = "data:video/mp4;base64," +
+    "AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA" +
+    "OhtZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlID" +
+    "E2NCByMzA5NSBiYWVlNDAwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyA" +
+    "tIENvcHlsZWZ0IDIwMDMtMjAyNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4u" +
+    "b3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTEgZGVib" +
+    "G9jaz0xOjA6MCBhbmFseXNlPTB4MToweDEgbWU9ZGlhIHN1Ym1lPTcgcH" +
+    "N5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MCBtZV9yYW5nZT0" +
+    "xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTAgOHg4ZGN0PTAgY3FtPTAgZGVh" +
+    "ZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9L" +
+    "TIgdGhyZWFkcz0xIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3Rocm" +
+    "VhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9" +
+    "jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWln" +
+    "aHRwPTAgd2VpZ2h0Yj0wIGtleWludD0yNTAgc2NlbmVjdXQ9NDAgaW50c" +
+    "mFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1jcmYgbWJ0cmVlPT" +
+    "EgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3R" +
+    "lcD00IHZidl9tYXhyYXRlPTc2OCB2YnZfYnVmc2l6ZT0zMDAwIGNyZl9t" +
+    "YXg9MC4wIG5hbF9ocmQ9bm9uZSBmaWxsZXI9MCBpcF9yYXRpbz0xLjQwI" +
+    "GFxPTE6MS4wMAAAAAAQZYiEAD//8AAAAFBNb292AAAAbG12aGQAAAAAAAAAAAAAAAAAAAPoA" +
+    "AAAEAABAAABAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAhkAAAACHRyYWsAAABcdGtoZAAAAA8AA" +
+    "AAAAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAQAAAAAg" +
+    "AAAAIAAAAAAACRtZGlhAAAAIG1kaGQAAAAAAAAAAAAAAAAAAAAoAAAAAgBVxAAAAAAALWh" +
+    "kbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABPG1pbmYAAAAU" +
+    "dm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQA" +
+    "AAQxzdGJsAAAAnHN0c2QAAAAAAAAAAQAAAIxhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAA" +
+    "AAAAgACABIAAAASAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG" +
+    "P//AAAAMmF2Y0MBZAAf/+EAGWdkAB+s2UCYM+XhAAAAAwBAAAADAIPEiWWAAQAGaOvjy" +
+    "yLAAAAAGHN0dHMAAAAAAAAAAQAAAAEAAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAEHN0" +
+    "c3oAAAAAAAADhAAAAQAAAARzdGNvAAAAAAAAAAEAAAAwAAAAYXVkdHMAAAA=";
+  const v = document.getElementById('keep-awake');
+  v.src = silentMP4;
+  v.play().catch(()=>{});
+  // Re-trigger play every 30s in case it pauses
+  setInterval(()=>{ v.play().catch(()=>{}); }, 30000);
+})();
+
+// Method 2: Wake Lock API (works on some newer browsers)
+(async function initWakeLock(){
+  if('wakeLock' in navigator){
+    try{
+      let lock = await navigator.wakeLock.request('screen');
+      // Re-acquire on visibility change
+      document.addEventListener('visibilitychange', async()=>{
+        if(document.visibilityState==='visible'){
+          lock = await navigator.wakeLock.request('screen');
+        }
+      });
+    }catch(e){}
+  }
+})();
+
+// Method 3: Periodic title toggle (some webOS versions detect "activity")
+setInterval(()=>{
+  document.title = document.title === 'Countdown' ? 'Countdown ' : 'Countdown';
+}, 30000);
+</script></body></html>
